@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TREINO</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #181818;
+    --border: #222;
+    --accent: #e8ff47;
+    --accent2: #ff4747;
+    --text: #f0f0f0;
+    --muted: #555;
+    --done: #2a2a2a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px 12px;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .app-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .app-subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .reset-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-btn:active { background: var(--surface2); color: var(--text); }
+
+  /* DAY TABS */
+  .day-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .day-tabs::-webkit-scrollbar { display: none; }
+
+  .day-tab {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .day-tab.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+
+  .day-tab.rest-tab.active {
+    background: var(--muted);
+    color: #000;
+    border-color: var(--muted);
+  }
+
+  /* MAIN CONTENT */
+  .content { padding: 20px; padding-bottom: 100px; }
+
+  /* DAY PANEL */
+  .day-panel { display: none; animation: fadeIn 0.25s ease; }
+  .day-panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* DAY HEADER */
+  .day-header {
+    margin-bottom: 20px;
+  }
+
+  .day-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .day-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .day-focus {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+    font-weight: 300;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: var(--surface);
+    border-radius: 100px;
+    height: 4px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 100px;
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* EXERCISE CARD */
+  .exercise-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: all 0.25s;
+  }
+
+  .exercise-card.completed {
+    opacity: 0.45;
+    border-color: transparent;
+  }
+
+  .exercise-main {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .exercise-check {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    background: none;
+    cursor: pointer;
+  }
+
+  .exercise-card.completed .exercise-check {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .check-icon {
+    display: none;
+    width: 12px;
+    height: 12px;
+  }
+  .exercise-card.completed .check-icon { display: block; }
+
+  .exercise-info { flex: 1; min-width: 0; }
+
+  .exercise-name {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+
+  .exercise-sets {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .expand-arrow {
+    color: var(--muted);
+    font-size: 16px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .exercise-card.expanded .expand-arrow { transform: rotate(180deg); }
+
+  /* SETS TRACKER */
+  .sets-tracker {
+    display: none;
+    padding: 0 16px 16px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+
+  .exercise-card.expanded .sets-tracker { display: block; }
+
+  .sets-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .sets-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .set-chip {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .set-chip.done {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-weight: 500;
+  }
+
+  .notes-text {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  /* REST DAY */
+  .rest-content {
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .rest-icon { font-size: 64px; margin-bottom: 20px; }
+  .rest-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--muted);
+    letter-spacing: 3px;
+  }
+  .rest-sub { color: var(--muted); font-size: 14px; margin-top: 8px; }
+
+  /* TIPS SECTION */
+  .tips-section {
+    margin-top: 28px;
+    padding: 18px;
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+  }
+
+  .tips-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .tip {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .tip:last-child { margin-bottom: 0; }
+  .tip-dot {
+    color: var(--accent);
+    font-size: 18px;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+
+  /* BOTTOM NAV */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    padding: 14px 20px;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .stat-item { text-align: center; }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .divider { width: 1px; height: 30px; background: var(--border); }
+
+  /* COMPLETE BADGE */
+  .complete-badge {
+    display: none;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    padding: 10px 24px;
+    border-radius: 100px;
+    animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .complete-badge.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="app-title">TREINO</div>
+      <div class="app-subtitle">Protocolo otimizado</div>
+    </div>
+    <button class="reset-btn" onclick="resetDay()">↺ RESET</button>
+  </div>
+  <div class="day-tabs" id="dayTabs"></div>
+</div>
+
+<div class="content" id="content"></div>
+
+<div class="bottom-bar">
+  <div class="stat-item">
+    <div class="stat-value" id="statExercises">0</div>
+    <div class="stat-label">Exercícios</div>
+  </div>
+  <div class="divider"></div>
+  <div class="stat-item">
+    <div class="stat-value" id="statSeries">0</div>
+    <div class="stat-label">Séries</div>
+  </div>
+  <div class="divider"></div>
+  <div id="completeBadge" class="complete-badge">CONCLUÍDO ✓</div>
+  <div class="stat-item" id="statVolumeWrap">
+    <div class="stat-value" id="statVolume">0%</div>
+    <div class="stat-label">Progresso</div>
+  </div>
+</div>
+
+<script>
+const DAYS = [
+  {
+    id: 'upperA',
+    tab: 'UPPER A',
+    name: 'UPPER A',
+    focus: 'Empurrar + Puxar Horizontal · Bíceps · Tríceps',
+    label: 'DIA 1',
+    exercises: [
+      { name: 'Supino Reto', sets: 4, reps: '4–6', note: 'Movimento principal — foco em carga. Descanso 3min.' },
+      { name: 'Remada com Barra', sets: 4, reps: '4–6', note: 'Par antagonista do supino. Controle na descida.' },
+      { name: 'Supino Inclinado Halteres', sets: 3, reps: '8–10', note: 'Ênfase na parte superior do peitoral.' },
+      { name: 'Puxada Pronada', sets: 3, reps: '8–10', note: 'Feche as escápulas no topo do movimento.' },
+      { name: 'Rosca Direta', sets: 3, reps: '8–10', note: 'Cotovelo fixo. Sem balanço.' },
+      { name: 'Tríceps Polia Barra', sets: 3, reps: '8–10', note: 'Cotovelo colado ao corpo.' },
+    ]
+  },
+  {
+    id: 'lowerA',
+    tab: 'LOWER A',
+    name: 'LOWER A',
+    focus: 'Quad-dominant · Posterior · Panturrilha',
+    label: 'DIA 2',
+    exercises: [
+      { name: 'Agachamento Livre', sets: 4, reps: '4–6', note: 'Movimento rei. Descanso 3–4min entre séries.' },
+      { name: 'Leg Press', sets: 3, reps: '8–10', note: 'Adiciona volume de quad sem sobrecarregar a lombar.' },
+      { name: 'Stiff', sets: 3, reps: '8–10', note: 'Alongar bem na descida. Sinta o isquiotibial.' },
+      { name: 'Panturrilha em Pé', sets: 4, reps: '10–12', note: 'Pausa de 1s na extensão máxima.' },
+      { name: 'Abdômen', sets: 3, reps: '15–20', note: 'Qualquer variação. Foco na contração.' },
+    ]
+  },
+  {
+    id: 'rest',
+    tab: 'DESCANSO',
+    name: 'DESCANSO',
+    focus: '',
+    label: 'DIA 3',
+    rest: true,
+    exercises: []
+  },
+  {
+    id: 'upperB',
+    tab: 'UPPER B',
+    name: 'UPPER B',
+    focus: 'Ombro · Puxar Vertical · Bíceps · Tríceps',
+    label: 'DIA 4',
+    exercises: [
+      { name: 'Desenvolvimento Militar', sets: 3, reps: '6–8', note: 'Press vertical. Core ativado, sem arco excessivo.' },
+      { name: 'Puxada Supinada', sets: 4, reps: '6–8', note: 'Supinação ativa o bíceps mais. Feche as escápulas.' },
+      { name: 'Crucifixo com Halteres', sets: 3, reps: '10–12', note: 'Ênfase no peitoral. Leve semi-flexão no cotovelo.' },
+      { name: 'Remada Unilateral', sets: 3, reps: '10–12', note: 'Suporte na bancada. Isole o grande dorsal.' },
+      { name: 'Rosca Alternada', sets: 3, reps: '8–10', note: 'Supine no topo para pico do bíceps.' },
+      { name: 'Tríceps Corda', sets: 3, reps: '8–10', note: 'Abre a corda no final da extensão.' },
+      { name: 'Elevação Lateral', sets: 3, reps: '12–15', note: 'Leve, controlado. Cotovelo levemente flexionado.' },
+    ]
+  },
+  {
+    id: 'lowerB',
+    tab: 'LOWER B',
+    name: 'LOWER B',
+    focus: 'Posterior-dominant · Flexão · Panturrilha',
+    label: 'DIA 5',
+    exercises: [
+      { name: 'Agachamento Romeno (RDL)', sets: 4, reps: '6–8', note: 'Empurre o quadril para trás. Barra rente ao corpo.' },
+      { name: 'Mesa Flexora', sets: 3, reps: '10–12', note: 'Isola isquiotibial. Controle na descida.' },
+      { name: 'Hack Squat ou Búlgaro', sets: 3, reps: '8–10', note: 'Foco no quad. Joelho alinhado com o pé.' },
+      { name: 'Panturrilha Sentado', sets: 4, reps: '12–15', note: 'Cabeça do sóleo. Pausa na contração.' },
+      { name: 'Abdômen', sets: 3, reps: '15–20', note: 'Varie com o Lower A.' },
+    ]
+  },
+  {
+    id: 'fullBody',
+    tab: 'FULL BODY',
+    name: 'FULL BODY',
+    focus: 'Hipertrofia Metabólica · Volume · Pump',
+    label: 'DIA 6',
+    exercises: [
+      { name: 'Supino Máquina', sets: 3, reps: '12–15', note: 'Cargas leves. Foco na contração e pump.' },
+      { name: 'Puxada', sets: 3, reps: '12–15', note: 'Cadência lenta na descida.' },
+      { name: 'Agachamento Goblet', sets: 3, reps: '15', note: 'Halter no peito. Mantém o tronco ereto.' },
+      { name: 'Stiff Halteres', sets: 3, reps: '12', note: 'Amplitude total. Controlado.' },
+      { name: 'Desenvolvimento Lateral', sets: 3, reps: '15', note: 'Leve e controlado. Queima o medial.' },
+      { name: 'Rosca Martelo', sets: 3, reps: '12', note: 'Trabalha braquial e braquiorradial.' },
+      { name: 'Tríceps Francês', sets: 3, reps: '12', note: 'Cabeça longa do tríceps. Cotovelos fechados.' },
+    ]
+  }
+];
+
+let state = {};
+let currentDay = 0;
+
+function getKey(dayId, exIdx, setIdx) {
+  return `${dayId}_ex${exIdx}_s${setIdx}`;
+}
+
+function loadState() {
+  try {
+    state = JSON.parse(localStorage.getItem('treino_state') || '{}');
+  } catch(e) { state = {}; }
+}
+
+function saveState() {
+  try { localStorage.setItem('treino_state', JSON.stringify(state)); } catch(e) {}
+}
+
+function isSetDone(dayId, exIdx, setIdx) {
+  return !!state[getKey(dayId, exIdx, setIdx)];
+}
+
+function toggleSet(dayId, exIdx, setIdx) {
+  const k = getKey(dayId, exIdx, setIdx);
+  state[k] = !state[k];
+  saveState();
+  render();
+}
+
+function isExDone(dayId, exIdx) {
+  const ex = DAYS.find(d => d.id === dayId).exercises[exIdx];
+  return Array.from({length: ex.sets}, (_, i) => isSetDone(dayId, exIdx, i)).every(Boolean);
+}
+
+function resetDay() {
+  const day = DAYS[currentDay];
+  day.exercises.forEach((ex, ei) => {
+    for (let s = 0; s < ex.sets; s++) {
+      delete state[getKey(day.id, ei, s)];
+    }
+  });
+  saveState();
+  render();
+}
+
+let expandedCards = {};
+
+function toggleExpand(dayId, exIdx) {
+  const k = `${dayId}_${exIdx}`;
+  expandedCards[k] = !expandedCards[k];
+  render();
+}
+
+function render() {
+  renderTabs();
+  renderContent();
+  renderStats();
+}
+
+function renderTabs() {
+  const tabs = document.getElementById('dayTabs');
+  tabs.innerHTML = DAYS.map((d, i) => `
+    <button class="day-tab ${d.rest ? 'rest-tab' : ''} ${i === currentDay ? 'active' : ''}"
+      onclick="switchDay(${i})">${d.tab}</button>
+  `).join('');
+}
+
+function renderContent() {
+  const content = document.getElementById('content');
+  content.innerHTML = DAYS.map((day, di) => {
+    if (day.rest) return `
+      <div class="day-panel ${di === currentDay ? 'active' : ''}" id="panel_${di}">
+        <div class="rest-content">
+          <div class="rest-icon">💤</div>
+          <div class="rest-title">DESCANSO</div>
+          <div class="rest-sub">Recuperação é quando o músculo cresce.</div>
+        </div>
+        <div class="tips-section">
+          <div class="tips-title">// Protocolo de recuperação</div>
+          <div class="tip"><span class="tip-dot">▸</span><span>Durma pelo menos 7–8h. GH pico no sono profundo.</span></div>
+          <div class="tip"><span class="tip-dot">▸</span><span>Mantenha a proteína: mínimo 2g/kg de peso.</span></div>
+          <div class="tip"><span class="tip-dot">▸</span><span>Superávit calórico de +200 a +400 kcal para crescer.</span></div>
+          <div class="tip"><span class="tip-dot">▸</span><span>Hidratação: 40ml/kg de peso corporal.</span></div>
+        </div>
+      </div>`;
+
+    const doneCount = day.exercises.filter((_, ei) => isExDone(day.id, ei)).length;
+    const totalSets = day.exercises.reduce((a, e) => a + e.sets, 0);
+    const doneSets = day.exercises.reduce((a, e, ei) => {
+      return a + Array.from({length: e.sets}, (_, si) => isSetDone(day.id, ei, si)).filter(Boolean).length;
+    }, 0);
+    const progress = totalSets > 0 ? Math.round(doneSets / totalSets * 100) : 0;
+
+    return `
+      <div class="day-panel ${di === currentDay ? 'active' : ''}" id="panel_${di}">
+        <div class="day-header">
+          <div class="day-label">${day.label}</div>
+          <div class="day-name">${day.name}</div>
+          <div class="day-focus">${day.focus}</div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar" style="width:${progress}%"></div>
+        </div>
+        <div class="progress-label">${doneSets}/${totalSets} séries concluídas</div>
+        <div style="margin-top:16px">
+          ${day.exercises.map((ex, ei) => {
+            const done = isExDone(day.id, ei);
+            const expanded = !!expandedCards[`${day.id}_${ei}`];
+            return `
+              <div class="exercise-card ${done ? 'completed' : ''} ${expanded ? 'expanded' : ''}" id="card_${di}_${ei}">
+                <div class="exercise-main" onclick="toggleExpand('${day.id}', ${ei})">
+                  <div class="exercise-check" onclick="event.stopPropagation(); markAllSets('${day.id}', ${ei}, ${ex.sets}, ${done})">
+                    <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="exercise-info">
+                    <div class="exercise-name">${ex.name}</div>
+                    <div class="exercise-sets">${ex.sets} × ${ex.reps} reps</div>
+                  </div>
+                  <div class="expand-arrow">⌄</div>
+                </div>
+                <div class="sets-tracker">
+                  <div class="sets-label">// Séries</div>
+                  <div class="sets-row">
+                    ${Array.from({length: ex.sets}, (_, si) => `
+                      <button class="set-chip ${isSetDone(day.id, ei, si) ? 'done' : ''}"
+                        onclick="toggleSet('${day.id}', ${ei}, ${si})">
+                        S${si+1}
+                      </button>
+                    `).join('')}
+                  </div>
+                  ${ex.note ? `<div class="notes-text">// ${ex.note}</div>` : ''}
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+        <div class="tips-section" style="margin-top:20px">
+          <div class="tips-title">// Protocolo geral</div>
+          <div class="tip"><span class="tip-dot">▸</span><span>Progressão de carga: bateu o teto de reps → sobe o peso.</span></div>
+          <div class="tip"><span class="tip-dot">▸</span><span>Descanso 2–3min nos compostos, 60–90s nos isoladores.</span></div>
+          <div class="tip"><span class="tip-dot">▸</span><span>Proteína: mínimo 2g/kg. Não deixe isso ser o gargalo.</span></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function markAllSets(dayId, exIdx, totalSets, currentlyDone) {
+  for (let s = 0; s < totalSets; s++) {
+    const k = getKey(dayId, exIdx, s);
+    state[k] = !currentlyDone;
+  }
+  saveState();
+  render();
+}
+
+function renderStats() {
+  const day = DAYS[currentDay];
+  if (day.rest) {
+    document.getElementById('statExercises').textContent = '—';
+    document.getElementById('statSeries').textContent = '—';
+    document.getElementById('statVolume').textContent = '—';
+    document.getElementById('completeBadge').classList.remove('show');
+    document.getElementById('statVolumeWrap').style.display = 'block';
+    return;
+  }
+
+  const doneEx = day.exercises.filter((_, ei) => isExDone(day.id, ei)).length;
+  const totalSets = day.exercises.reduce((a, e) => a + e.sets, 0);
+  const doneSets = day.exercises.reduce((a, e, ei) => {
+    return a + Array.from({length: e.sets}, (_, si) => isSetDone(day.id, ei, si)).filter(Boolean).length;
+  }, 0);
+  const progress = totalSets > 0 ? Math.round(doneSets / totalSets * 100) : 0;
+  const allDone = doneEx === day.exercises.length && day.exercises.length > 0;
+
+  document.getElementById('statExercises').textContent = `${doneEx}/${day.exercises.length}`;
+  document.getElementById('statSeries').textContent = `${doneSets}/${totalSets}`;
+  document.getElementById('statVolume').textContent = `${progress}%`;
+  
+  const badge = document.getElementById('completeBadge');
+  const wrap = document.getElementById('statVolumeWrap');
+  if (allDone) {
+    badge.classList.add('show');
+    wrap.style.display = 'none';
+  } else {
+    badge.classList.remove('show');
+    wrap.style.display = 'block';
+  }
+}
+
+function switchDay(idx) {
+  currentDay = idx;
+  render();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+loadState();
+render();
+</script>
+</body>
+</html>
